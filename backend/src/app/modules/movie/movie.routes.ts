@@ -3,7 +3,7 @@ import { MovieController } from './movie.controller';
 
 const router = express.Router();
 
-router.post('/create-movie', MovieController.createMovie);
+router.post('/create', MovieController.createMovie);
 
 router.get('/:id', MovieController.getSingleMovie);
 router.patch('/:id', MovieController.updateMovie);

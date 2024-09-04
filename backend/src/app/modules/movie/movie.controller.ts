@@ -70,7 +70,6 @@ const getAllMovies = async (
       andConditions.length > 0 ? { $and: andConditions } : {};
 
     const result = await Movie.find(whereCondition)
-      .populate('users')
       .sort(sortConditions)
       .skip(skip)
       .limit(limit);
@@ -102,7 +101,7 @@ const getSingleMovie = async (
   try {
     const { id } = req.params;
 
-    const result = await Movie.findById(id).populate('users').exec();
+    const result = await Movie.findById(id);
 
     res.status(200).json({
       success: true,
