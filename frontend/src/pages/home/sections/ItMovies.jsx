@@ -29,7 +29,7 @@ const ItMovies = () => {
             className="lg:w-[600px] w-[300px]  h-full z-50"
           />
           <img
-            className="absolute inset-0 rounded-sm lg:w-[476px] w-[230px]  lg:h-[311px] h-[150px] lg:left-[62.5px] left-8 lg:top-[132px] top-16"
+            className="absolute inset-0 rounded-sm lg:w-[476px] w-[230px]  lg:h-[311px] h-[150px] lg:left-[62.7px] left-8 lg:top-[132px] top-16"
             src={trailerImg}
             alt=""
           />

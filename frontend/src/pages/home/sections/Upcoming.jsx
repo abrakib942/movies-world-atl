@@ -59,12 +59,11 @@ const Upcoming = () => {
         }}
         className="mt-8"
         onSlideChange={(swiper) => {
-          // Adjust scaling based on the active index
           const slides = swiper.slides;
           slides.forEach((slide, index) => {
             if (index === swiper.activeIndex) {
               slide.style.transform = "scale(1.1)";
-              slide.style.border = "3px solid #0399fa";
+              // slide.style.border = "3px solid #0399fa";
             } else {
               slide.style.transform = "scale(0.85)";
               slide.style.border = "none";
@@ -72,12 +71,11 @@ const Upcoming = () => {
           });
         }}
         onSwiper={(swiper) => {
-          // Initial scaling when the component is first rendered
           const slides = swiper.slides;
           slides.forEach((slide, index) => {
             if (index === swiper.activeIndex) {
               slide.style.transform = "scale(1.1)";
-              slide.style.border = "3px solid #0399fa";
+              // slide.style.border = "3px solid #0399fa";
             } else {
               slide.style.transform = "scale(0.85)";
               slide.style.border = "none";
@@ -93,7 +91,7 @@ const Upcoming = () => {
                 alt={item.title}
                 className="w-full h-full object-cover rounded-xl"
               />
-              <div className="mt-[-48px] text-center text-white  z-50 py-2 rounded-b-lg backdrop-blur-md">
+              <div className="mt-[-42px] text-center text-white  z-50 py-2 rounded-b-lg backdrop-blur-md">
                 {item.title}
               </div>
             </div>
