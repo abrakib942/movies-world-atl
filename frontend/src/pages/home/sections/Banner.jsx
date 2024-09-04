@@ -22,7 +22,7 @@ const Banner = () => {
   };
 
   return (
-    <div className="lg:px-48 px-12 my-12">
+    <div className="lg:px-40 px-12 my-12">
       <div className="font-sans lg:flex items-center gap-12 ">
         <div className="mb-8 text-left">
           <div className="text-[60px] leading-[65px] font-bold text-[#0399fa]">

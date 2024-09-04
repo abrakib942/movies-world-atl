@@ -1,4 +1,5 @@
 import Banner from "./sections/Banner";
+import ItMovies from "./sections/ItMovies";
 import Upcoming from "./sections/Upcoming";
 
 const Home = () => {
@@ -6,6 +7,7 @@ const Home = () => {
     <div>
       <Banner />
       <Upcoming />
+      <ItMovies />
     </div>
   );
 };
