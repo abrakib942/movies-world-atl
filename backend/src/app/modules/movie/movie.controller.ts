@@ -5,10 +5,29 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { SortOrder } from 'mongoose';
 import { Movie } from './movie.model';
+import { jwtHelpers } from '../../../helpers/jwtHelpers';
+import config from '../../../config';
+import { Secret } from 'jsonwebtoken';
+import { User } from '../user/user.model';
 
 const createMovie = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await Movie.create(req.body);
+    const token = req.headers.authorization as string;
+
+    const verifiedToken = jwtHelpers.verifyToken(
+      token,
+      config.jwt.secret as Secret
+    );
+
+    const { userId } = verifiedToken;
+
+    const result = (
+      await Movie.create({ addedBy: userId, ...req.body })
+    ).populate('addedBy');
+
+    await User.findByIdAndUpdate(userId, {
+      $push: { addedMovies: (await result)._id },
+    });
 
     res.status(200).json({
       success: true,
@@ -39,11 +58,11 @@ const getAllMovies = async (
 
     const andConditions = [];
 
-    const itemsSearchableFields = ['title', 'genre'];
+    const moviesSearchableFields = ['title', 'genre'];
 
     if (searchTerm) {
       andConditions.push({
-        $or: itemsSearchableFields.map(field => ({
+        $or: moviesSearchableFields.map(field => ({
           [field]: { $regex: searchTerm, $options: 'i' }, // options i - case insensitive
         })),
       });
@@ -70,6 +89,7 @@ const getAllMovies = async (
       andConditions.length > 0 ? { $and: andConditions } : {};
 
     const result = await Movie.find(whereCondition)
+      .populate('addedBy')
       .sort(sortConditions)
       .skip(skip)
       .limit(limit);
@@ -101,7 +121,7 @@ const getSingleMovie = async (
   try {
     const { id } = req.params;
 
-    const result = await Movie.findById(id);
+    const result = await Movie.findById(id).populate('addedBy');
 
     res.status(200).json({
       success: true,

@@ -4,6 +4,80 @@ import pick from '../../../shared/pick';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { SortOrder } from 'mongoose';
+import config from '../../../config';
+import { Secret } from 'jsonwebtoken';
+import { jwtHelpers } from '../../../helpers/jwtHelpers';
+import { Movie } from '../movie/movie.model';
+import ApiError from '../../../errors/ApiError';
+
+const addToWatchList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.headers.authorization as string;
+    const verifiedToken = jwtHelpers.verifyToken(
+      token,
+      config.jwt.secret as Secret
+    );
+    const { userId } = verifiedToken;
+
+    const { id } = req.params;
+    const movie = await Movie.findById(id);
+    if (!movie) {
+      throw new ApiError(400, 'movie not found');
+    }
+
+    const result = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { watchList: id } }, // $addToSet ensures no duplicates
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Added to Watch-List',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const removeFromWatchList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.headers.authorization as string;
+    const verifiedToken = jwtHelpers.verifyToken(
+      token,
+      config.jwt.secret as Secret
+    );
+    const { userId } = verifiedToken;
+
+    const { id } = req.params;
+    const movie = await Movie.findById(id);
+    if (!movie) {
+      throw new ApiError(400, 'movie not found');
+    }
+
+    const result = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { watchList: id } }, // $pull removes the movie from the array
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'remove from watch-list',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -20,11 +94,11 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 
     const andConditions = [];
 
-    const itemsSearchableFields = ['name', 'email'];
+    const usersSearchableFields = ['name', 'email'];
 
     if (searchTerm) {
       andConditions.push({
-        $or: itemsSearchableFields.map(field => ({
+        $or: usersSearchableFields.map(field => ({
           [field]: { $regex: searchTerm, $options: 'i' }, // options i - case insensitive
         })),
       });
@@ -51,7 +125,9 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
       andConditions.length > 0 ? { $and: andConditions } : {};
 
     const result = await User.find(whereCondition)
-      .populate('movies')
+      .populate('addedMovies')
+      .populate('watchList')
+      .populate('ratedMovies')
       .sort(sortConditions)
       .skip(skip)
       .limit(limit);
@@ -83,8 +159,7 @@ const getSingleUser = async (
   try {
     const { id } = req.params;
 
-    const result = await User.findById(id).populate('items').exec();
-
+    const result = await User.findById(id);
     res.status(200).json({
       success: true,
       message: 'user retrieved successfully!',
@@ -135,4 +210,6 @@ export const UserController = {
   getSingleUser,
   updateUser,
   deleteUser,
+  addToWatchList,
+  removeFromWatchList,
 };
