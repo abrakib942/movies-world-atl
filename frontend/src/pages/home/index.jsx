@@ -1,3 +1,4 @@
+import AddedMovies from "./sections/AddedMovies";
 import Banner from "./sections/Banner";
 import ItMovies from "./sections/ItMovies";
 import RatedMovies from "./sections/RatedMovies";
@@ -12,6 +13,7 @@ const Home = () => {
       <ItMovies />
       <RatedMovies />
       <WatchList />
+      <AddedMovies />
     </div>
   );
 };
