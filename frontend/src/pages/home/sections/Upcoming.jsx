@@ -1,32 +1,23 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import pic1 from "../../../assets/img/pic1.jpg";
-import pic2 from "../../../assets/img/pic2.jpg";
-import pic3 from "../../../assets/img/pic3.jpg";
+import { useGetAllMoviesQuery } from "../../../redux/api/movieApi";
+import Loading from "../../../components/Loading";
 
 const Upcoming = () => {
-  const items = [
-    {
-      img: pic1,
-      title: "ROCKET LEAGUE",
-    },
-    {
-      img: pic2,
-      title: "FORTNITE",
-    },
-    {
-      img: pic3,
-      title: "GUILDWARS 2",
-    },
-    {
-      img: pic2,
-      title: "THE VAMPIRE DIARIES",
-    },
-    {
-      img: pic3,
-      title: "GEN V",
-    },
-  ];
+  const { data, isLoading } = useGetAllMoviesQuery({});
+
+  const moviesData = data?.data.data;
+  const upcomingMovies = moviesData?.filter(
+    (movie) => movie.isUpcoming === true
+  );
+
+  console.log("first", upcomingMovies);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  console.log("data", data);
 
   return (
     <div className="font-sans text-center my-8">
@@ -83,16 +74,16 @@ const Upcoming = () => {
           });
         }}
       >
-        {items.map((item, index) => (
+        {upcomingMovies.map((movie, index) => (
           <SwiperSlide key={index}>
             <div className="flex-shrink-0 rounded-lg transition-transform duration-500">
               <img
-                src={item.img}
-                alt={item.title}
-                className="w-full h-full object-cover rounded-xl"
+                src={movie.posterUrl}
+                alt={movie.title}
+                className="w-64 h-80 rounded-xl"
               />
               <div className="mt-[-42px] text-center text-white  z-50 py-2 rounded-b-lg backdrop-blur-md">
-                {item.title}
+                {movie.title}
               </div>
             </div>
           </SwiperSlide>
