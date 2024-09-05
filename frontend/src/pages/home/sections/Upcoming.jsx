@@ -25,7 +25,9 @@ const Upcoming = () => {
         <div className="text-center text-[#0399fa] text-3xl font-bold mb-3">
           UPCOMING <span className="text-[#f5c618]">MOVIES</span>
         </div>
-        <div className="text-center ">We constantly offer new movies</div>
+        <div className="text-center text-white">
+          We constantly offer new movies
+        </div>
       </div>
 
       {/* Swiper Slider */}

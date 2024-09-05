@@ -7,7 +7,7 @@ import WatchList from "./sections/WatchList";
 
 const Home = () => {
   return (
-    <div className="font-sans">
+    <div className="font-sans bg-[#061520]">
       <Banner />
       <Upcoming />
       <ItMovies />

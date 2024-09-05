@@ -1,70 +1,38 @@
-import CustomButton from "./CustomButton";
-import { Card } from "antd";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-import pic1 from "../assets/img/pic1.jpg";
-
-import { PlayCircleOutlined } from "@ant-design/icons";
 
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import { FaStar } from "react-icons/fa";
+
+import { useGetAllMoviesQuery } from "../redux/api/movieApi";
+
+import Loading from "./Loading";
+import { getUserInfo } from "../utils/authService";
+import { useGetSingleUserQuery } from "../redux/api/userApi";
+import MovieCard from "./MovieCard";
 
 const CardSlides = () => {
-  const items = [
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-    {
-      title: "joker",
-      img: pic1,
-      rating: 5,
-    },
-  ];
+  const { userId } = getUserInfo();
+
+  const { data: movies, isLoading } = useGetAllMoviesQuery({});
+
+  const { data: userData, isLoading: userLoading } =
+    useGetSingleUserQuery(userId);
+
+  const moviesData = movies?.data?.data || [];
+  const watchListMovies = userData?.data?.watchList || [];
+
+  // Helper function to check if a movie is in the user's watchlist
+  const isMovieInWatchlist = (movieId) => {
+    return watchListMovies.some(
+      (watchlistItem) => watchlistItem._id === movieId
+    );
+  };
+
+  if (isLoading || userLoading) {
+    return <Loading />;
+  }
 
   return (
     <div>
@@ -84,7 +52,6 @@ const CardSlides = () => {
           .swiper-button-prev::after {
             font-size: 16px;                    
             font-weight: bold;
-                            
           }
         `}
       </style>
@@ -109,29 +76,12 @@ const CardSlides = () => {
         modules={[Navigation]}
         className="mySwiper"
       >
-        {items.map((item, i) => (
+        {moviesData.map((item, i) => (
           <SwiperSlide key={i}>
-            <Card
-              key={i}
-              hoverable
-              className="bg-[#13171a] text-white w-[200px]"
-              cover={<img className="h-[230px]" alt="" src={item.img} />}
-            >
-              <p className="font-bold text-lg uppercase leading-none">
-                {item.title}
-              </p>
-              <p className="leading-none flex items-center gap-1 font-semibold">
-                {" "}
-                <FaStar className="text-yellow-400" /> {item.rating}
-              </p>
-
-              <CustomButton>+ Watch List</CustomButton>
-
-              <p>
-                <PlayCircleOutlined className="mr-1" />
-                TRAILER
-              </p>
-            </Card>
+            <MovieCard
+              item={item}
+              isInWatchlist={isMovieInWatchlist(item._id)}
+            />
           </SwiperSlide>
         ))}
       </Swiper>

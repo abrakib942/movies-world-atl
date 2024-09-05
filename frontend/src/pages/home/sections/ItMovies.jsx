@@ -10,7 +10,7 @@ const ItMovies = () => {
           <div className=" text-[#0399fa] text-3xl font-bold mb-3">
             ENJOY IT <span className="text-[#f5c618]">MOVIES</span>
           </div>
-          <div>
+          <div className="text-white">
             Lorem ipsum, dolor sit amet consectetur adipisicing elit.
             Consequatur optio est sapiente, ut tenetur minus blanditiis tempore
             non a ab atque adipisci nobis ipsa fugit sequi magnam at mollitia

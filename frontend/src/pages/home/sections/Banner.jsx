@@ -22,13 +22,13 @@ const Banner = () => {
   };
 
   return (
-    <div className="lg:px-40 px-12 my-12">
+    <div className="lg:px-40 px-12 mb-12 py-5">
       <div className="font-sans lg:flex items-center gap-12 ">
         <div className="mb-8 text-left">
           <div className="text-[60px] leading-[65px] font-bold text-[#0399fa]">
             BEST WAY OF ENTERTAINMENT
           </div>
-          <div className="text-2xl mt-6 font-bold ">
+          <div className="text-2xl text-white mt-6 font-bold ">
             MOVIES AS YOU DEMAND AT USD
           </div>
           <div className="text-2xl font-bold mt-1 text-[#f5c618]">10/MONTH</div>

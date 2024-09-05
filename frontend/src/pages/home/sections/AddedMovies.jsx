@@ -17,7 +17,7 @@ const AddedMovies = () => {
   ];
 
   return (
-    <div className="font-sans text-center">
+    <div className="font-sans text-center pb-8">
       <div className="text-center text-[#0399fa] text-3xl font-bold mb-3">
         MY ADDED <span className="text-[#f5c618]">MOVIES</span>
       </div>

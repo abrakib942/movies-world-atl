@@ -3,6 +3,9 @@ import App from "../App";
 import Home from "../pages/home";
 import Movies from "../pages/movie/Movies";
 import MovieDetails from "../pages/movie/MovieDetails";
+import Login from "../pages/Login";
+import SignUp from "../pages/SignUp";
+import NotFound from "../components/NotFound";
 
 const routes = createBrowserRouter([
   {
@@ -23,18 +26,18 @@ const routes = createBrowserRouter([
       },
     ],
   },
-  //   {
-  //     path: "/login",
-  //     element: <Login />,
-  //   },
-  //   {
-  //     path: "/signup",
-  //     element: <Signup />,
-  //   },
-  //   {
-  //     path: "*",
-  //     element: <NotFound />,
-  //   },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
 ]);
 
 export default routes;
