@@ -10,6 +10,68 @@ import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import { Movie } from '../movie/movie.model';
 import ApiError from '../../../errors/ApiError';
 
+const rateMovie = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.headers.authorization as string;
+    const verifiedToken = jwtHelpers.verifyToken(
+      token,
+      config.jwt.secret as Secret
+    );
+    const { userId } = verifiedToken;
+    const { id } = req.params; // movie ID
+    const { rating } = req.body;
+
+    if (!userId) {
+      throw new ApiError(400, 'You are not authorized. Please login.');
+    }
+
+    const movie = await Movie.findById(id);
+    if (!movie) {
+      throw new ApiError(400, 'Movie not found.');
+    }
+
+    // Check if the user already rated this movie
+    const existingRating = await User.findOne({
+      _id: userId,
+      'ratedMovies.movie': id,
+    });
+
+    if (existingRating) {
+      // Update the user's rating
+      await User.updateOne(
+        { _id: userId, 'ratedMovies.movie': id },
+        { $set: { 'ratedMovies.$.rating': rating } }
+      );
+
+      // Update the movie's rating
+      await Movie.updateOne(
+        { _id: id, 'ratedUsers.user': userId },
+        { $set: { 'ratedUsers.$.rating': rating } }
+      );
+    } else {
+      // Add the rating to both User and Movie if not rated yet
+      await User.findByIdAndUpdate(
+        userId,
+        { $push: { ratedMovies: { movie: id, rating } } },
+        { new: true }
+      );
+
+      await Movie.findByIdAndUpdate(
+        id,
+        { $push: { ratedUsers: { user: userId, rating } } },
+        { new: true }
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Movie rated successfully!',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const addToWatchList = async (
   req: Request,
   res: Response,
@@ -27,6 +89,13 @@ const addToWatchList = async (
     const movie = await Movie.findById(id);
     if (!movie) {
       throw new ApiError(400, 'movie not found');
+    }
+
+    if (!userId) {
+      throw new ApiError(
+        400,
+        'You are not authorized. Please login and access the token'
+      );
     }
 
     const result = await User.findByIdAndUpdate(
@@ -159,7 +228,13 @@ const getSingleUser = async (
   try {
     const { id } = req.params;
 
-    const result = await User.findById(id);
+    const result = await User.findById(id)
+      .populate('addedMovies')
+      .populate('watchList')
+      .populate({
+        path: 'ratedMovies.movie',
+        model: 'Movie',
+      });
     res.status(200).json({
       success: true,
       message: 'user retrieved successfully!',
@@ -212,4 +287,5 @@ export const UserController = {
   deleteUser,
   addToWatchList,
   removeFromWatchList,
+  rateMovie,
 };

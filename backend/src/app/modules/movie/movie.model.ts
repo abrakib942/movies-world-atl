@@ -60,7 +60,12 @@ const movieSchema = new Schema<IMovie>({
       year: { type: Number },
     },
   ],
-  ratedUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  ratedUsers: [
+    {
+      user: { type: Schema.Types.ObjectId, ref: 'User' },
+      rating: { type: Number, required: true },
+    },
+  ],
   isUpcoming: {
     type: Boolean,
     default: false,

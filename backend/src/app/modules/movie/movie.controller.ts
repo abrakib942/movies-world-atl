@@ -121,7 +121,14 @@ const getSingleMovie = async (
   try {
     const { id } = req.params;
 
-    const result = await Movie.findById(id).populate('addedBy');
+    const result = await Movie.findById(id)
+      .populate('addedBy')
+      .populate('addedBy', 'name')
+      .populate({
+        path: 'ratedUsers.user',
+        model: 'User',
+        select: 'name email',
+      });
 
     res.status(200).json({
       success: true,

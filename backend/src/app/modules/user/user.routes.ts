@@ -8,6 +8,8 @@ router.get('/:id', UserController.getSingleUser);
 router.patch('/:id', UserController.updateUser);
 router.delete('/:id', UserController.deleteUser);
 
+router.post('/rate/:id', auth(), UserController.rateMovie);
+
 router.patch('/addTo/:id', auth(), UserController.addToWatchList);
 router.patch('/removeFrom/:id', auth(), UserController.removeFromWatchList);
 
