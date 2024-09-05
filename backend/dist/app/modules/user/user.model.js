@@ -15,6 +15,7 @@ const userSchema = new mongoose_1.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     email: {
         type: String,
@@ -25,7 +26,14 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
-    items: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Item' }],
+    watchList: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Movie' }],
+    addedMovies: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Movie' }],
+    ratedMovies: [
+        {
+            movie: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Movie' },
+            rating: { type: Number, required: true },
+        },
+    ],
 }, {
     timestamps: true,
     toJSON: {

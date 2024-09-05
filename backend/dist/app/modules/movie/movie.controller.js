@@ -23,27 +23,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ItemController = void 0;
-const item_model_1 = require("./item.model");
-const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
-const config_1 = __importDefault(require("../../../config"));
+exports.MovieController = void 0;
 const pick_1 = __importDefault(require("../../../shared/pick"));
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
+const movie_model_1 = require("./movie.model");
+const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
+const config_1 = __importDefault(require("../../../config"));
 const user_model_1 = require("../user/user.model");
-const createItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createMovie = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const token = req.headers.authorization;
         const verifiedToken = jwtHelpers_1.jwtHelpers.verifyToken(token, config_1.default.jwt.secret);
         const { userId } = verifiedToken;
-        const { name } = req.body;
-        const result = yield (yield item_model_1.Item.create({ created_by: userId, name })).populate('created_by');
-        // Save the item's ID to the user's 'items' array
-        yield user_model_1.User.findByIdAndUpdate(userId, { $push: { items: result._id } });
-        // const { ...item } = req.body;
-        // const result = await (await Item.create(item)).populate('created_by');
+        const result = (yield movie_model_1.Movie.create(Object.assign({ addedBy: userId }, req.body))).populate('addedBy');
+        yield user_model_1.User.findByIdAndUpdate(userId, {
+            $push: { addedMovies: (yield result)._id },
+        });
         res.status(200).json({
             success: true,
-            message: 'item created successfully!',
+            message: 'movie created successfully!',
             data: result,
         });
     }
@@ -51,9 +49,9 @@ const createItem = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(error);
     }
 });
-const getAllItems = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllMovies = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const filters = (0, pick_1.default)(req.query, ['searchTerm', 'name', 'created_by']);
+        const filters = (0, pick_1.default)(req.query, ['searchTerm', 'genre']);
         const { searchTerm } = filters, filtersData = __rest(filters, ["searchTerm"]);
         const paginationOptions = (0, pick_1.default)(req.query, [
             'page',
@@ -62,11 +60,11 @@ const getAllItems = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             'sortOrder',
         ]);
         const andConditions = [];
-        const itemsSearchableFields = ['name'];
+        const moviesSearchableFields = ['title', 'genre'];
         if (searchTerm) {
             andConditions.push({
-                $or: itemsSearchableFields.map(field => ({
-                    [field]: { $regex: searchTerm, $options: 'i' },
+                $or: moviesSearchableFields.map(field => ({
+                    [field]: { $regex: searchTerm, $options: 'i' }, // options i - case insensitive
                 })),
             });
         }
@@ -83,15 +81,15 @@ const getAllItems = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             sortConditions[sortBy] = sortOrder;
         }
         const whereCondition = andConditions.length > 0 ? { $and: andConditions } : {};
-        const result = yield item_model_1.Item.find(whereCondition)
-            .populate('created_by')
+        const result = yield movie_model_1.Movie.find(whereCondition)
+            .populate('addedBy')
             .sort(sortConditions)
             .skip(skip)
             .limit(limit);
-        const total = yield item_model_1.Item.countDocuments(whereCondition);
+        const total = yield movie_model_1.Movie.countDocuments(whereCondition);
         res.status(200).json({
             success: true,
-            message: 'Items retrieved successfully!',
+            message: 'movies retrieved successfully!',
             data: {
                 meta: {
                     page,
@@ -106,13 +104,20 @@ const getAllItems = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         next(error);
     }
 });
-const getSingleItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getSingleMovie = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const result = yield item_model_1.Item.findById(id).populate('created_by');
+        const result = yield movie_model_1.Movie.findById(id)
+            .populate('addedBy')
+            .populate('addedBy', 'name')
+            .populate({
+            path: 'ratedUsers.user',
+            model: 'User',
+            select: 'name email',
+        });
         res.status(200).json({
             success: true,
-            message: 'item retrieved successfully!',
+            message: 'movie retrieved successfully!',
             data: result,
         });
     }
@@ -120,16 +125,17 @@ const getSingleItem = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         next(error);
     }
 });
-const updateItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateMovie = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const result = yield item_model_1.Item.findByIdAndUpdate({ _id: id }, req.body, {
+        const updatedData = req.body;
+        const result = yield movie_model_1.Movie.findOneAndUpdate({ _id: id }, updatedData, {
             new: true,
             runValidators: true,
-        }).populate('created_by');
+        });
         res.status(200).json({
             success: true,
-            message: 'item updated successfully!',
+            message: 'movie updated successfully!',
             data: result,
         });
     }
@@ -137,13 +143,13 @@ const updateItem = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(error);
     }
 });
-const deleteItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteMovie = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const result = yield item_model_1.Item.findByIdAndDelete(id).populate('created_by');
+        const result = yield movie_model_1.Movie.findByIdAndDelete(id);
         res.status(200).json({
             success: true,
-            message: 'item deleted successfully!',
+            message: 'movie deleted successfully!',
             data: result,
         });
     }
@@ -151,10 +157,10 @@ const deleteItem = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(error);
     }
 });
-exports.ItemController = {
-    createItem,
-    getAllItems,
-    getSingleItem,
-    updateItem,
-    deleteItem,
+exports.MovieController = {
+    createMovie,
+    getAllMovies,
+    getSingleMovie,
+    updateMovie,
+    deleteMovie,
 };
