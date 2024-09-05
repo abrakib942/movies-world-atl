@@ -13,11 +13,14 @@ import {
 } from "@ant-design/icons";
 import { Card, message } from "antd";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const MovieCard = ({ item, isInWatchlist }) => {
   const [addToWatchList] = useAddToWatchListMutation();
   const [removeFromWatchList] = useRemoveFromWatchListMutation();
   const [inWatchlist, setInWatchlist] = useState(isInWatchlist);
+
+  const navigate = useNavigate();
 
   const handleWatchListToggle = async (movieId) => {
     try {
@@ -42,6 +45,8 @@ const MovieCard = ({ item, isInWatchlist }) => {
     } catch (error) {
       console.error(error);
       message.error("Something went wrong!");
+      message.error("You are not authorized. Please login");
+      navigate("/login");
     }
   };
 
@@ -49,12 +54,21 @@ const MovieCard = ({ item, isInWatchlist }) => {
     <Card
       hoverable
       className="bg-[#13171a] text-white w-[200px] border-none"
-      cover={<img className="h-[230px]" alt="" src={item.posterUrl} />}
+      cover={
+        <img
+          onClick={() => navigate(`/movies/${item._id}`)}
+          className="h-[230px]"
+          alt=""
+          src={item.posterUrl}
+        />
+      }
     >
-      <p className="font-bold text-lg uppercase leading-none">{item.title}</p>
-      <p className="leading-none flex items-center gap-1 font-semibold">
-        <FaStar className="text-yellow-400" /> {item.rating}
-      </p>
+      <div onClick={() => navigate(`/movies/${item._id}`)}>
+        <p className="font-bold text-lg uppercase leading-none">{item.title}</p>
+        <p className="leading-none flex items-center gap-1 font-semibold">
+          <FaStar className="text-yellow-400" /> {item.rating}
+        </p>
+      </div>
 
       <CustomButton onClick={() => handleWatchListToggle(item._id)}>
         {inWatchlist ? <CheckOutlined /> : <PlusOutlined />} Watch List

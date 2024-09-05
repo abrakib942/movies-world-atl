@@ -2,13 +2,28 @@ import { useGetAllMoviesQuery } from "../../redux/api/movieApi";
 import Loading from "../../components/Loading";
 
 import MovieCard from "../../components/MovieCard";
+import { useGetSingleUserQuery } from "../../redux/api/userApi";
+import { getUserInfo } from "../../utils/authService";
 
 const Movies = () => {
   const { data, isLoading } = useGetAllMoviesQuery({});
 
+  const { userId } = getUserInfo();
+
+  const { data: userData, isLoading: userLoading } =
+    useGetSingleUserQuery(userId);
+
   const moviesData = data?.data.data;
 
-  if (isLoading) {
+  const watchListMovies = userData?.data?.watchList || [];
+
+  const isMovieInWatchlist = (movieId) => {
+    return watchListMovies.some(
+      (watchlistItem) => watchlistItem._id === movieId
+    );
+  };
+
+  if (isLoading || userLoading) {
     return <Loading />;
   }
   return (
@@ -19,7 +34,10 @@ const Movies = () => {
       <div className="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-8 justify-items-center">
         {moviesData?.map((item, i) => (
           <div key={i}>
-            <MovieCard item={item} />
+            <MovieCard
+              item={item}
+              isInWatchlist={isMovieInWatchlist(item._id)}
+            />
           </div>
         ))}
       </div>

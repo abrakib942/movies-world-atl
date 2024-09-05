@@ -23,7 +23,6 @@ const CardSlides = () => {
   const moviesData = movies?.data?.data || [];
   const watchListMovies = userData?.data?.watchList || [];
 
-  // Helper function to check if a movie is in the user's watchlist
   const isMovieInWatchlist = (movieId) => {
     return watchListMovies.some(
       (watchlistItem) => watchlistItem._id === movieId
@@ -76,7 +75,7 @@ const CardSlides = () => {
         modules={[Navigation]}
         className="mySwiper"
       >
-        {moviesData.map((item, i) => (
+        {(userId ? watchListMovies : moviesData).map((item, i) => (
           <SwiperSlide key={i}>
             <MovieCard
               item={item}
