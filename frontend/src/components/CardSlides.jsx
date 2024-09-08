@@ -11,6 +11,8 @@ import Loading from "./Loading";
 import { getUserInfo } from "../utils/authService";
 import { useGetSingleUserQuery } from "../redux/api/userApi";
 import MovieCard from "./MovieCard";
+import CustomButton from "./CustomButton";
+import { useNavigate } from "react-router-dom";
 
 const CardSlides = () => {
   const { userId } = getUserInfo();
@@ -19,6 +21,8 @@ const CardSlides = () => {
 
   const { data: userData, isLoading: userLoading } =
     useGetSingleUserQuery(userId);
+
+  const navigate = useNavigate();
 
   const moviesData = movies?.data?.data || [];
   const watchListMovies = userData?.data?.watchList || [];
@@ -83,6 +87,20 @@ const CardSlides = () => {
             />
           </SwiperSlide>
         ))}
+        {userId && watchListMovies.length < 1 && (
+          <div>
+            <h4 className="text-white text-center">
+              You have no item to show there
+            </h4>
+            <CustomButton
+              onClick={() => navigate("/movies")}
+              className="flex items-center justify-center mx-auto"
+            >
+              {" "}
+              View Movies List
+            </CustomButton>
+          </div>
+        )}
       </Swiper>
     </div>
   );

@@ -10,14 +10,17 @@ import {
   PlayCircleOutlined,
   CheckOutlined,
   PlusOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { Card, message } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const MovieCard = ({ item, isInWatchlist }) => {
-  const [addToWatchList] = useAddToWatchListMutation();
-  const [removeFromWatchList] = useRemoveFromWatchListMutation();
+  const [addToWatchList, { isLoading: addLoading }] =
+    useAddToWatchListMutation();
+  const [removeFromWatchList, { isLoading: removeLoading }] =
+    useRemoveFromWatchListMutation();
   const [inWatchlist, setInWatchlist] = useState(isInWatchlist);
 
   const navigate = useNavigate();
@@ -25,7 +28,6 @@ const MovieCard = ({ item, isInWatchlist }) => {
   const handleWatchListToggle = async (movieId) => {
     try {
       if (inWatchlist) {
-        // Remove from watchlist
         const res = await removeFromWatchList({
           id: movieId,
           data: {},
@@ -35,7 +37,6 @@ const MovieCard = ({ item, isInWatchlist }) => {
           setInWatchlist(false);
         }
       } else {
-        // Add to watchlist
         const res = await addToWatchList({ id: movieId, data: {} }).unwrap();
         if (res?.data) {
           message.success("Added to Watch-List");
@@ -71,7 +72,14 @@ const MovieCard = ({ item, isInWatchlist }) => {
       </div>
 
       <CustomButton onClick={() => handleWatchListToggle(item._id)}>
-        {inWatchlist ? <CheckOutlined /> : <PlusOutlined />} Watch List
+        {addLoading || removeLoading ? (
+          <LoadingOutlined />
+        ) : inWatchlist ? (
+          <CheckOutlined />
+        ) : (
+          <PlusOutlined />
+        )}{" "}
+        Watch List
       </CustomButton>
 
       <p>

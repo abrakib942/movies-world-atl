@@ -10,7 +10,7 @@ import FormInput from "../components/FormInput";
 import CustomButton from "../components/CustomButton";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useUserLoginMutation } from "../redux/api/authApi";
-import { storeUserInfo } from "../utils/authService";
+
 import Navbar from "../layouts/navbar/Navbar";
 
 const Login = () => {
@@ -21,19 +21,18 @@ const Login = () => {
     try {
       const res = await userLogin({ ...data });
 
-      if (res?.data?.token) {
+      if (res?.data?.token === undefined || res?.error) {
+        message.error(res?.error?.data?.message);
+      } else if (res?.data?.token) {
         message.success({
           content: "Login successful!",
 
           duration: 3,
         });
         navigate("/");
-      }
 
-      storeUserInfo({ accessToken: res?.data?.token });
-
-      if (res?.error) {
-        message.error(res?.error?.data?.message);
+        localStorage.setItem("accessToken", res?.data?.token);
+        // storeUserInfo({ accessToken: res?.data?.token });
       }
     } catch (error) {
       //

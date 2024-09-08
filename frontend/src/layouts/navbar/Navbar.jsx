@@ -8,11 +8,11 @@ import {
 import "./navbar.css";
 import CustomButton from "../../components/CustomButton";
 import { Link, useNavigate } from "react-router-dom";
-import { isLoggedIn, removeUserInfo } from "../../utils/authService";
+import { getUserInfo, removeUserInfo } from "../../utils/authService";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const isLogin = isLoggedIn();
+  const { userId } = getUserInfo();
 
   const logOut = () => {
     removeUserInfo("accessToken");
@@ -44,7 +44,7 @@ const Navbar = () => {
       <Link to="/" className="no-underline text-white">
         Watch-list
       </Link>
-      {isLogin ? (
+      {userId ? (
         <>
           <Link to="/">
             <CustomButton className="font-semibold" disabled>
